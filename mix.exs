@@ -10,7 +10,8 @@ defmodule EctoTranslate.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps,
-      aliases: aliases
+      aliases: aliases,
+      package: package
     ]
   end
 
@@ -45,10 +46,10 @@ defmodule EctoTranslate.Mixfile do
     [
       maintainers: ["Gerard de Brieder"],
       licenses: ["WTFPL"],
-      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      files: ["lib", "mix.exs", "README*", "LICENSE*", "CHANGELOG*"],
       links: %{
         "GitHub" => "https://github.com/smeevil/ecto_translate",
-        "Docs"   => "http://smeevil.github.io/ecto_translate/"
+        "Docs"   => "https://smeevil.github.io/ecto_translate/EctoTranslate.html"
       }
     ]
   end

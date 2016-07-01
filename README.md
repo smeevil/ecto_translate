@@ -50,6 +50,8 @@ iex> Gettext.set_locale(MyApp.Gettext, :nl)
 iex> translated_post = MyApp.Post.translate!(post)
 iex> translated_post.title
 ```
+### Docs
+Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.html)
 
 ## Installation
 
