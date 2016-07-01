@@ -1,0 +1,328 @@
+    <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.12.0">
+    <title>EctoTranslate – ecto_translate v0.1.0</title>
+    <link rel="stylesheet" href="dist/app-88251e7c81.css" />
+    
+    <script src="dist/sidebar_items.js"></script>
+  </head>
+  <body data-type="modules">
+
+    <div class="main">
+<button class="sidebar-toggle">
+  <i class="icon-menu"></i>
+</button>
+<section class="sidebar">
+
+  
+  <a href="api-reference.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        ecto_translate
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v0.1.0
+      </h2>
+    </div>
+    
+  </a>
+
+  <div class="sidebar-search">
+    <i class="icon-search"></i>
+    <input type="text" class="sidebar-searchInput" placeholder="search" autocomplete="off" />
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+
+  <ul id="full-list" class="sidebar-fullList"></ul>
+  <div class="sidebar-noResults"></div>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+      <h1>
+        <small class="visible-xs">ecto_translate v0.1.0</small>
+        EctoTranslate
+        
+        
+      </h1>
+
+      
+        <section id="moduledoc" class="docstring">
+          <p>EctoTranslate is a library that helps with translating Ecto data. EctoTranslate can help you with returning translated values of your Ecto data attributes. For this it uses a singe table called “translations” which will contain polymorphic entries for all of your Ecto data stucts.</p>
+<h2>examples</h2>
+<p>Given an ecto module like :</p>
+<pre><code class="elixir">defmodule MyApp.Post do
+  ...
+  use EctoTranslate, [:title, :body]
+  ...
+  schema &quot;posts&quot; do
+    field :title, :string
+    field :body, :string
+  end
+  ...
+end</code></pre>
+<p>You can set translations using :
+locale: :nl, title: “Een nederlandse titel”,  description: “Een nederlandse beschrijving”]</p>
+<p>Then you can ask for a translated fields explicitly using :</p>
+<pre><code class="iex elixir">iex&gt; MyApp.Post.translated_title(post, :nl)
+&quot;Een nederlandse titel&quot;</code></pre>
+<p>Or you can update the model by replacing the fields with their translations using :</p>
+<pre><code class="iex elixir">iex&gt; translated_post = MyApp.Post.translate!(post, :nl)
+iex&gt; translated_post.title
+&quot;Een nederlandse titel&quot;
+iex&gt; translated_post.description
+&quot;Een nederlandse beschrijving&quot;</code></pre>
+<p>If a translation is not found, it will fall back to the original database value.
+If you ommit the locale in the function calls, the current gettext locale will be used.</p>
+<pre><code class="iex elixir">iex&gt; Gettext.set_locale(MyApp.Gettext, :nl)
+iex&gt; translated_post = MyApp.Post.translate!(post)
+iex&gt; translated_post.title</code></pre>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <i class="icon-link"></i>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#changeset/2">changeset(struct, params \\ %{})</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Builds a changeset based on the <code class="inline">struct</code> and <code class="inline">params</code> and validates the required fields and given locale</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#current_locale/0">current_locale()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An helper method to get the current Gettext locale</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#known_locales/0">known_locales()</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>An helper method to get the known Gettext locales</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#set/2">set(model, list)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Creates the translations for the given fields in the database or will update those when they already exist</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-macros summary">
+    <h2>
+      <a href="#macros">Macros</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#__using__/1">__using__(fields)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>EctoTranslate is meant to be <code class="inline">use</code>d by a module</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <i class="icon-link"></i>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="changeset/2">
+  <div class="detail-header">
+    <a href="#changeset/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">changeset(struct, params \\ %{})</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>Builds a changeset based on the <code class="inline">struct</code> and <code class="inline">params</code> and validates the required fields and given locale</p>
+
+  </section>
+</div>
+<div class="detail" id="current_locale/0">
+  <div class="detail-header">
+    <a href="#current_locale/0" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">current_locale()</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>An helper method to get the current Gettext locale</p>
+
+  </section>
+</div>
+<div class="detail" id="known_locales/0">
+  <div class="detail-header">
+    <a href="#known_locales/0" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">known_locales()</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>An helper method to get the known Gettext locales</p>
+
+  </section>
+</div>
+<div class="detail" id="set/2">
+  <div class="detail-header">
+    <a href="#set/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">set(model, list)</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>Creates the translations for the given fields in the database or will update those when they already exist.</p>
+<h2>Example</h2>
+<pre><code class="iex elixir">iex&gt; %EctoTranslate.ExampleModel{title: &quot;A title in english&quot;, description: &quot;A description in english&quot;}
+...&gt; |&gt; EctoTranslate.Repo.insert!
+...&gt; |&gt; EctoTranslate.set(locale: :de, title: &quot;Eine deutche titel&quot;, description: &quot;Ein deutsche umschreibung&quot;)
+[
+  %EctoTranslate{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;translations&quot;&gt;, content: &quot;Eine deutche titel&quot;, field: &quot;title&quot;, id: 241, inserted_at: #Ecto.DateTime&lt;2016-07-01 21:09:11&gt;, locale: &quot;de&quot;, translatable_id: 221, translatable_type: &quot;test_model&quot;, updated_at: #Ecto.DateTime&lt;2016-07-01 21:09:11&gt;},
+  %EctoTranslate{__meta__: #Ecto.Schema.Metadata&lt;:loaded, &quot;translations&quot;&gt;, content: &quot;Ein deutsche umschreibung&quot;, field: &quot;description&quot;, id: 242, inserted_at: #Ecto.DateTime&lt;2016-07-01 21:09:11&gt;, locale: &quot;de&quot;, translatable_id: 221, translatable_type: &quot;test_model&quot;, updated_at: #Ecto.DateTime&lt;2016-07-01 21:09:11&gt;}
+]</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+        <section id="macros" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#macros">
+              <i class="icon-link"></i>
+            </a>
+            Macros
+          </h1>
+          <div class="detail" id="__using__/1">
+  <div class="detail-header">
+    <a href="#__using__/1" class="detail-link" title="Link to this macro">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">__using__(fields)</span>
+    
+    
+  </div>
+  
+  <section class="docstring">
+    <p>EctoTranslate is meant to be <code class="inline">use</code>d by a module.</p>
+<p><code class="inline">use</code> needs a list of attributes that you would like to make available for translation.</p>
+<pre><code class="elixir">defmodule MyApp.Post do
+  use EctoTranslatable, [:title, :body]
+end</code></pre>
+<p>When <code class="inline">use</code> is called, it will add the following functions to your module</p>
+<ul>
+<li>translatable_fields/0
+</li>
+<li>translate!/1
+</li>
+<li>translate!/2
+</li>
+<li>translated_attr/1 i.e. translated_title/1
+</li>
+<li>translated_attr/2 i.e. translated_title/2
+</li>
+</ul>
+<p>For each of the functions the second parameter is an optional locale. if ommitted, it will use the current Gettext locale.</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.12.0),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle" />
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-21f1a20b9e.js"></script>
+  </body>
+</html>
+
