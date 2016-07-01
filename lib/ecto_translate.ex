@@ -1,0 +1,212 @@
+defmodule EctoTranslate do
+  @moduledoc """
+  EctoTranslate is a library that helps with translating Ecto data. EctoTranslate can help you with returning translated values of your Ecto data attributes. For this it uses a singe table called "translations" which will contain polymorphic entries for all of your Ecto data stucts.
+
+  ## examples
+
+  Given an ecto module like :
+
+      defmodule MyApp.Post do
+        ...
+        use EctoTranslate, [:title, :body]
+        ...
+        schema "posts" do
+          field :title, :string
+          field :body, :string
+        end
+        ...
+      end
+
+  You can set translations using :
+  locale: :nl, title: "Een nederlandse titel",  description: "Een nederlandse beschrijving"]
+
+  Then you can ask for a translated fields explicitly using :
+
+      iex> MyApp.Post.translated_title(post, :nl)
+      "Een nederlandse titel"
+
+  Or you can update the model by replacing the fields with their translations using :
+
+      iex> translated_post = MyApp.Post.translate!(post, :nl)
+      iex> translated_post.title
+      "Een nederlandse titel"
+      iex> translated_post.description
+      "Een nederlandse beschrijving"
+
+  If a translation is not found, it will fall back to the original database value.
+  If you ommit the locale in the function calls, the current gettext locale will be used.
+
+      iex> Gettext.set_locale(MyApp.Gettext, :nl)
+      iex> translated_post = MyApp.Post.translate!(post)
+      iex> translated_post.title
+  """
+  use Ecto.Schema
+
+  import Ecto
+  import Ecto.Changeset
+  import Ecto.Query
+
+  @doc """
+  EctoTranslate is meant to be `use`d by a module.
+
+  `use` needs a list of attributes that you would like to make available for translation.
+
+      defmodule MyApp.Post do
+        use EctoTranslatable, [:title, :body]
+      end
+
+  When `use` is called, it will add the following functions to your module
+    - translatable_fields/0
+    - translate!/1
+    - translate!/2
+    - translated_attr/1 i.e. translated_title/1
+    - translated_attr/2 i.e. translated_title/2
+
+  For each of the functions the second parameter is an optional locale. if ommitted, it will use the current Gettext locale.
+  """
+  defmacro __using__(fields) do
+    repo = Application.get_env(:ecto_translate, :repo)
+
+    translatable_fields_ast = quote do
+      def translatable_fields, do: unquote(fields)
+    end
+
+    translated_field_ast = Enum.map(fields, fn field ->
+      quote do
+        def unquote(:"translated_#{(field)}")(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale \\ nil) do
+          locale = locale || EctoTranslate.current_locale
+          record = EctoTranslate
+          |> where(translatable_type: ^translatable_type, translatable_id: ^translatable_id, field: unquote(Atom.to_string(field)))
+          |> unquote(repo).one
+
+          case record do
+            nil -> Map.get(model, unquote(field))
+            record -> Map.get(record, :content)
+          end
+        end
+      end
+    end)
+
+    translate_ast = quote do
+      def translate!(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale \\ nil) do
+        locale = Atom.to_string((locale || String.to_atom(EctoTranslate.current_locale)))
+
+        translations = EctoTranslate
+        |> where(translatable_type: ^translatable_type, translatable_id: ^translatable_id, locale: ^locale)
+        |> unquote(repo).all
+        |> Enum.map(fn record -> {String.to_atom(Map.get(record, :field)) , Map.get(record, :content)} end)
+        |> Enum.into(%{})
+
+        Map.merge(model, translations)
+      end
+    end
+
+    {translatable_fields_ast, {translated_field_ast, translate_ast}}
+  end
+
+  schema "translations" do
+    field :translatable_id, :integer
+    field :translatable_type, :string
+    field :locale, :string
+    field :field, :string
+    field :content, :string
+    timestamps
+  end
+
+  @repo Application.get_env(:ecto_translate, :repo)
+  @required_fields ~w(translatable_id translatable_type locale field content)a
+
+  @doc """
+  Builds a changeset based on the `struct` and `params` and validates the required fields and given locale
+
+  """
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, @required_fields)
+    |> validate_required(@required_fields)
+    |> validate_locale
+    |> unique_constraint(:translatable_id, name: :translations_translatable_id_translatable_type_locale_field_ind)
+  end
+
+  @doc """
+  Creates the translations for the given fields in the database or will update those when they already exist.
+
+  ## Example
+
+      iex> %EctoTranslate.ExampleModel{title: "A title in english", description: "A description in english"}
+      ...> |> EctoTranslate.Repo.insert!
+      ...> |> EctoTranslate.set(locale: :de, title: "Eine deutche titel", description: "Ein deutsche umschreibung")
+      [
+        %EctoTranslate{__meta__: #Ecto.Schema.Metadata<:loaded, "translations">, content: "Eine deutche titel", field: "title", id: 241, inserted_at: #Ecto.DateTime<2016-07-01 21:09:11>, locale: "de", translatable_id: 221, translatable_type: "test_model", updated_at: #Ecto.DateTime<2016-07-01 21:09:11>},
+        %EctoTranslate{__meta__: #Ecto.Schema.Metadata<:loaded, "translations">, content: "Ein deutsche umschreibung", field: "description", id: 242, inserted_at: #Ecto.DateTime<2016-07-01 21:09:11>, locale: "de", translatable_id: 221, translatable_type: "test_model", updated_at: #Ecto.DateTime<2016-07-01 21:09:11>}
+      ]
+
+  """
+  def set(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, [{:locale, locale} | options]) do
+    params = %{
+      translatable_type: translatable_type,
+      translatable_id: translatable_id,
+      locale: Atom.to_string(locale)
+    }
+
+    changesets = create_changesets(model, params, options)
+
+    case validate_changesets(changesets) do
+      {:ok, changesets} -> changesets |> upsert_translations
+      error -> error
+    end
+  end
+
+  @doc """
+  An helper method to get the current Gettext locale
+  """
+  def current_locale, do: Gettext.get_locale(Application.get_env(:ecto_translate, :gettext))
+
+  @doc """
+  An helper method to get the known Gettext locales
+  """
+  def known_locales, do: Gettext.known_locales(Application.get_env(:ecto_translate, :gettext))
+
+  defp validate_changesets(changesets) do
+    case Enum.filter(changesets, fn changeset -> !changeset.valid? end) do
+      invalid when invalid == [] -> {:ok, changesets}
+      _ -> {:error, Enum.map(changesets, fn changeset -> {changeset.changes.field, changeset.errors} end)}
+    end
+  end
+
+  defp create_changesets(model, params, options) do
+    options
+    |> Enum.filter(fn {k, _v} -> Enum.member?(model.__struct__.translatable_fields, k) end)
+    |> Enum.map(fn {field, content} ->
+       params = Map.merge(params, %{field: Atom.to_string(field), content: content})
+       EctoTranslate.changeset(%EctoTranslate{}, params)
+    end)
+  end
+
+  defp validate_locale(%{changes: %{locale: locale}} = changeset) do
+    case Enum.member?(EctoTranslate.known_locales, locale) do
+      true  -> changeset
+      false -> add_error(changeset, :locale, "The locale '#{locale}' is not supported, supported are: #{Enum.join(EctoTranslate.known_locales, ", ")}, if you think this is incorrect, make sure your Gettext.known_locales/1 knows about the locale you want to add...")
+    end
+  end
+  defp validate_locale(changeset), do: changeset
+
+  defp upsert_translations([]), do: :ok
+  defp upsert_translations([changeset| changesets]) do
+    case @repo.insert(changeset) do
+      {:ok, cs} -> cs
+      {:error, cs} -> cs |> update_translation
+    end
+
+    upsert_translations(changesets)
+  end
+
+  defp update_translation(%{changes: changes}) do
+    record = EctoTranslate
+    |> where(translatable_type: ^changes.translatable_type, translatable_id: ^changes.translatable_id, locale: ^changes.locale, field: ^changes.field)
+    |> @repo.one!
+
+    record = Ecto.Changeset.change(record, changes)
+    @repo.update!(record)
+  end
+end
