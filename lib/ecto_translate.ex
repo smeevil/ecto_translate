@@ -87,7 +87,6 @@ defmodule EctoTranslate do
         If locale was ommitted, it will use the current Gettext locale.
         This will cause a query to be run to get the translation.
         """
-        @spec translated_field(record :: Ecto.Schema.t, locale :: Atom.t) :: String.t
         def unquote(:"translated_#{(field)}")(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale \\ nil) do
           locale = locale || EctoTranslate.current_locale
           record = EctoTranslate
