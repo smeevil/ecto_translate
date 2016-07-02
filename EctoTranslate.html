@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.12.0">
-    <title>EctoTranslate – ecto_translate v0.1.0</title>
+    <title>EctoTranslate – ecto_translate v0.2.0</title>
     <link rel="stylesheet" href="dist/app-88251e7c81.css" />
     
     <script src="dist/sidebar_items.js"></script>
@@ -25,7 +25,7 @@
         ecto_translate
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.1.0
+        v0.2.0
       </h2>
     </div>
     
@@ -58,7 +58,7 @@
 
 
       <h1>
-        <small class="visible-xs">ecto_translate v0.1.0</small>
+        <small class="visible-xs">ecto_translate v0.2.0</small>
         EctoTranslate
         
         
@@ -90,6 +90,9 @@ iex&gt; translated_post.title
 &quot;Een nederlandse titel&quot;
 iex&gt; translated_post.description
 &quot;Een nederlandse beschrijving&quot;</code></pre>
+<p>You can also pass in a collection to translate in batch preventing n+1 queries</p>
+<pre><code class="iex elixir">iex&gt; posts = MyApp.Post |&gt; MyApp.Repo.all
+iex&gt; translated_posts = MyApp.Post.translate!(posts, :nl)</code></pre>
 <p>If a translation is not found, it will fall back to the original database value.
 If you ommit the locale in the function calls, the current gettext locale will be used.</p>
 <pre><code class="iex elixir">iex&gt; Gettext.set_locale(MyApp.Gettext, :nl)
@@ -197,6 +200,15 @@ iex&gt; translated_post.title</code></pre>
     
   </div>
   
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">changeset(struct :: Ecto.Schema.t, params :: <a href="http://elixir-lang.org/docs/stable/elixir/Map.html#t:t/0">Map.t</a>) :: Ecto.Changeset.t</code></pre>
+        
+      </div>
+    </div>
+  
   <section class="docstring">
     <p>Builds a changeset based on the <code class="inline">struct</code> and <code class="inline">params</code> and validates the required fields and given locale</p>
 
@@ -211,6 +223,15 @@ iex&gt; translated_post.title</code></pre>
     
     
   </div>
+  
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">current_locale :: <a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a></code></pre>
+        
+      </div>
+    </div>
   
   <section class="docstring">
     <p>An helper method to get the current Gettext locale</p>
@@ -227,6 +248,15 @@ iex&gt; translated_post.title</code></pre>
     
   </div>
   
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">known_locales :: <a href="http://elixir-lang.org/docs/stable/elixir/Access.html#t:get/2">&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/List.html#t:t/0&quot;&gt;List.t&lt;/a&gt;[&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0&quot;&gt;String.t&lt;/a&gt;]</a></code></pre>
+        
+      </div>
+    </div>
+  
   <section class="docstring">
     <p>An helper method to get the known Gettext locales</p>
 
@@ -241,6 +271,17 @@ iex&gt; translated_post.title</code></pre>
     
     
   </div>
+  
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">set(model :: Ecto.Schema.t, options :: <a href="http://elixir-lang.org/docs/stable/elixir/Access.html#t:get/2">&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/List.html#t:t/0&quot;&gt;List.t&lt;/a&gt;[{&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/Atom.html#t:t/0&quot;&gt;Atom.t&lt;/a&gt;, Any.t}]</a>) ::
+  :ok |
+  {:error, <a href="http://elixir-lang.org/docs/stable/elixir/List.html#t:t/0">List.t</a>}</code></pre>
+        
+      </div>
+    </div>
   
   <section class="docstring">
     <p>Creates the translations for the given fields in the database or will update those when they already exist.</p>
@@ -276,6 +317,15 @@ iex&gt; translated_post.title</code></pre>
     
     
   </div>
+  
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">__using__(term, fields :: <a href="http://elixir-lang.org/docs/stable/elixir/Access.html#t:get/2">&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/List.html#t:t/0&quot;&gt;List.t&lt;/a&gt;[&lt;a href=&quot;http://elixir-lang.org/docs/stable/elixir/Atom.html#t:t/0&quot;&gt;Atom.t&lt;/a&gt;]</a>) :: nil</code></pre>
+        
+      </div>
+    </div>
   
   <section class="docstring">
     <p>EctoTranslate is meant to be <code class="inline">use</code>d by a module.</p>
