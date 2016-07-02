@@ -78,4 +78,19 @@ defmodule EctoTranslateTest do
     record = EctoTranslate.ExampleModel |> limit(1) |> EctoTranslate.Repo.one |> EctoTranslate.ExampleModel.translate!(:de)
     "Eine deutche titel" = record.title
   end
+
+  test "it can fetch translations for a list of entries" do
+     record = EctoTranslate.Repo.insert!(%EctoTranslate.ExampleModel{title: "an entry", description: "a description"})
+     EctoTranslate.set(record, locale: :nl, title: "Een ingave", description: "een beschrijving")
+     record = EctoTranslate.Repo.insert!(%EctoTranslate.ExampleModel{title: "an other entry", description: "An other description"})
+     EctoTranslate.set(record, locale: :nl, title: "Nog een ingave", description: "Nog een andere beschrijving")
+
+     records = EctoTranslate.ExampleModel |> EctoTranslate.Repo.all |> EctoTranslate.ExampleModel.translate!(:nl)
+
+     record = Enum.at(records, 1)
+     assert "Een ingave" == record.title
+
+     record = Enum.at(records, 2)
+     assert "Nog een ingave" == record.title
+  end
 end

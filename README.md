@@ -42,6 +42,12 @@ iex> translated_post.description
 "Een nederlandse beschrijving"
 ```
 
+You can also pass in a collection to translate in batch preventing n+1 queries
+```elixir
+iex> posts = MyApp.Post |> MyApp.Repo.all
+iex> translated_posts = MyApp.Post.translate!(posts, :nl)
+```
+      
 If a translation is not found, it will fall back to the original database value.
 If you ommit the locale in the function calls, the current gettext locale will be used.
 

@@ -33,6 +33,10 @@ defmodule EctoTranslate do
       iex> translated_post.description
       "Een nederlandse beschrijving"
 
+  You can also pass in a collection to translate in batch preventing n+1 queries
+      iex> posts = MyApp.Post |> MyApp.Repo.all
+      iex> translated_posts = MyApp.Post.translate!(posts, :nl)
+
   If a translation is not found, it will fall back to the original database value.
   If you ommit the locale in the function calls, the current gettext locale will be used.
 
@@ -64,15 +68,26 @@ defmodule EctoTranslate do
 
   For each of the functions the second parameter is an optional locale. if ommitted, it will use the current Gettext locale.
   """
+  @spec __using__(fields :: List.t[Atom.t]) :: nil
   defmacro __using__(fields) do
     repo = Application.get_env(:ecto_translate, :repo)
 
     translatable_fields_ast = quote do
+      @docs"""
+      A simple helper funtion to return a list of translatable fields on this model
+      """
+      @spec translatable_fields :: List.t[Atom.t]
       def translatable_fields, do: unquote(fields)
     end
 
     translated_field_ast = Enum.map(fields, fn field ->
       quote do
+        @docs"""
+        Returns a translated value for the requested field in the optionally given locale.
+        If locale was ommitted, it will use the current Gettext locale.
+        This will cause a query to be run to get the translation.
+        """
+        @spec translated_field(record :: Ecto.Schema.t, locale :: Atom.t) :: String.t
         def unquote(:"translated_#{(field)}")(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale \\ nil) do
           locale = locale || EctoTranslate.current_locale
           record = EctoTranslate
@@ -88,7 +103,14 @@ defmodule EctoTranslate do
     end)
 
     translate_ast = quote do
-      def translate!(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale \\ nil) do
+      @docs"""
+      Updates the model(s) that has/have been passed by replacing the content of the translatable fields with the optional locale given.
+      If locale was ommited, it will use the current Gettext locale.
+      This will cause a query to be run to get the translations.
+      """
+      @spec translate!(model :: Ecto.Schema.t | List.t[Ecto.Schema.t], locale :: Atom.t) :: Ecto.Schema.t | List.t[Ecto.Schema.t]
+      def translate!(model, locale \\ nil)
+      def translate!(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale) do
         locale = Atom.to_string((locale || String.to_atom(EctoTranslate.current_locale)))
 
         translations = EctoTranslate
@@ -98,6 +120,25 @@ defmodule EctoTranslate do
         |> Enum.into(%{})
 
         Map.merge(model, translations)
+      end
+      def translate!(models, locale) when is_list(models) do
+        locale = Atom.to_string((locale || String.to_atom(EctoTranslate.current_locale)))
+        ids = Enum.map(models, fn model -> model.id end)
+        %{__meta__: %{source: {_,translatable_type}}} = Enum.at(models, 0)
+
+        translations = EctoTranslate
+        |> where(translatable_type: ^translatable_type, locale: ^locale)
+        |> where([t], t.translatable_id in ^ids)
+        |> unquote(repo).all
+
+        #FIXME this might not be the most optimized way to do this, but for now, it works :)
+        Enum.map(models, fn model ->
+          attributes = Enum.filter(translations, fn (translation) ->  translation.translatable_id == model.id end)
+          |> Enum.map(fn record -> {String.to_atom(Map.get(record, :field)) , Map.get(record, :content)} end)
+          |> Enum.into(%{})
+
+          Map.merge(model, attributes)
+        end)
       end
     end
 
@@ -120,6 +161,7 @@ defmodule EctoTranslate do
   Builds a changeset based on the `struct` and `params` and validates the required fields and given locale
 
   """
+  @spec changeset(struct :: Ecto.Schema.t, params :: Map.t) :: Ecto.Changeset.t
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields)
@@ -142,6 +184,7 @@ defmodule EctoTranslate do
       ]
 
   """
+  @spec set(model :: Ecto.Schema.t, options :: List.t[{Atom.t, Any.t}]) :: :ok | {:error, List.t}
   def set(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, [{:locale, locale} | options]) do
     params = %{
       translatable_type: translatable_type,
@@ -160,11 +203,13 @@ defmodule EctoTranslate do
   @doc """
   An helper method to get the current Gettext locale
   """
+  @spec current_locale :: String.t
   def current_locale, do: Gettext.get_locale(Application.get_env(:ecto_translate, :gettext))
 
   @doc """
   An helper method to get the known Gettext locales
   """
+  @spec known_locales :: List.t[String.t]
   def known_locales, do: Gettext.known_locales(Application.get_env(:ecto_translate, :gettext))
 
   defp validate_changesets(changesets) do
