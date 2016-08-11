@@ -1,4 +1,5 @@
 # EctoTranslate
+![](https://img.shields.io/hexpm/v/ecto_translate.svg) ![](https://img.shields.io/hexpm/dt/ecto_translate.svg) ![](https://img.shields.io/hexpm/dw/ecto_translate.svg) ![](https://img.shields.io/coveralls/smeevil/ecto_translate.svg) ![](https://img.shields.io/github/issues/smeevil/ecto_translate.svg) ![](https://img.shields.io/github/issues-pr/smeevil/ecto_translate.svg) ![](https://semaphoreci.com/api/v1/smeevil/ecto_translate/branches/master/shields_badge.svg)
 
 EctoTranslate is a library that helps with translating Ecto data. EctoTranslate can help you with returning translated values of your Ecto data attributes. For this it uses a singe table called "translations" which will contain polymorphic entries for all of your Ecto data stucts.
 
@@ -47,7 +48,7 @@ You can also pass in a collection to translate in batch preventing n+1 queries
 iex> posts = MyApp.Post |> MyApp.Repo.all
 iex> translated_posts = MyApp.Post.translate!(posts, :nl)
 ```
-      
+
 If a translation is not found, it will fall back to the original database value.
 If you ommit the locale in the function calls, the current gettext locale will be used.
 
@@ -113,7 +114,7 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
 
 1. Migrate
     ```shell
-    mix ecto.migrate 
+    mix ecto.migrate
     ```
 1. Update your config.exs and add these settings
 
@@ -150,8 +151,8 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
     iex> translated_post.title
     "Een nederlandse titel"
     ```
-    or 
-    
+    or
+
     ```elixir
     iex> MyApp.Post.translated_title(post, :nl)
     "Een nederlandse titel"
