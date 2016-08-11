@@ -21,7 +21,7 @@ defmodule EctoTranslateTest do
 
   test "It should return errors for translated fields if the locale is not supported", state do
     result = EctoTranslate.set(state[:test_record], locale: :gibberish, title: "test", description: "test")
-    assert {:error, [{"title", [locale: {"The locale 'gibberish' is not supported, supported are: de, nl, if you think this is incorrect, make sure your Gettext.known_locales/1 knows about the locale you want to add...", []}]}, {"description", [locale: {"The locale 'gibberish' is not supported, supported are: de, nl, if you think this is incorrect, make sure your Gettext.known_locales/1 knows about the locale you want to add...", []}]}]} == result
+    assert {:error, [{"title", [locale: {"The locale 'gibberish' is not supported, supported are" <> _, []}]}, {"description", [locale: {"The locale 'gibberish' is not supported, supported are" <> _, []}]}]} = result
   end
 
   test "It can create translated fields", state do
