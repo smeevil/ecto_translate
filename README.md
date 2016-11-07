@@ -3,6 +3,8 @@
 
 EctoTranslate is a library that helps with translating Ecto data. EctoTranslate can help you with returning translated values of your Ecto data attributes. For this it uses a singe table called "translations" which will contain polymorphic entries for all of your Ecto data stucts.
 
+You might also be interested in [set_locale](https://github.com/smeevil/set_locale) which will enable urls like ```http://www.example.com/nl-nl/foo/bar``` and set the correct locale.
+
 ## examples
 
 Given an ecto module like :
