@@ -88,7 +88,7 @@ defmodule EctoTranslate do
         This will cause a query to be run to get the translation.
         """
         def unquote(:"translated_#{(field)}")(%{__meta__: %{source: {_,translatable_type}}, id: translatable_id} = model, locale \\ nil) do
-          locale = Atom.to_string(locale || String.to_atom(Translate.current_locale))
+          locale = Atom.to_string(locale || String.to_atom(EctoTranslate.current_locale))
           record = EctoTranslate
           |> where(translatable_type: ^translatable_type, locale: ^locale, translatable_id: ^translatable_id, field: unquote(Atom.to_string(field)))
           |> unquote(repo).one
