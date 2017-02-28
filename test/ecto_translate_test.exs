@@ -13,10 +13,7 @@ defmodule EctoTranslateTest do
 
   test "It should return errors for translated fields if the content is not a string", state do
     result = EctoTranslate.set(state[:test_record], locale: :nl, title: 42, description: :this_is_wrong)
-    assert {:error,[
-             {"title", [content: {"is invalid", [type: :string]}]},
-             {"description", [content: {"is invalid", [type: :string]}]}
-           ]} == result
+    assert {:error, [{"title", [content: {"is invalid", [type: :string, validation: :cast]}]}, {"description", [content: {"is invalid", [type: :string, validation: :cast]}]}]} == result
   end
 
   test "It should return errors for translated fields if the locale is not supported", state do
