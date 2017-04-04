@@ -1,7 +1,11 @@
+## 0.2.3 (2017-04-04)
+  - bumped deps
+
 ## 0.2.2 (2017-03-01)
   - bumped deps
   - added a patch by philipgiuliani which fixes a Ecto.MultipleResultsError when there where more than one translation present for a field.
   - an other fix by philipgiuliani for translate! in case there where no results.
+
 ## 0.2.1 (2016-07-02)
   - bumped deps
 
