@@ -68,7 +68,7 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
 
     ```elixir
     def deps do
-      [{:ecto_translate, "~> 0.1.0"}]
+      [{:ecto_translate, "~> 0.2.3"}]
     end
     ```
 
@@ -80,38 +80,24 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
     end
     ```
 
-1. Create a migration for the translation table :
+1. Configure translatable_id_type if neccessary.
+
+    If your models does not use integer primary keys, (e.g: they use binary id)
+    you can configure EctoTranslate to use a different type of column type on
+    translatable_id.
+
+    To do this simply config `:ecto_translate` otp app for `:translatable_id_type`
+    with your choice of type. (e.g: binary_id, string, etc.)
+
+      ```elixir
+      config :ecto_translate,
+          translatable_id_type: :binary_id
+      ```
+
+1. Create a migration for the translation table by running:
 
     ```shell
-    mix ecto.gen.migration create_translations
-    vi priv/repo/migrations/<date>_create_translations.exs
-    ```
-
-    ```elixir
-    defmodule MyApp.Repo.Migrations.CreateTranslations do
-      use Ecto.Migration
-
-      def change do
-        create table(:test_model) do
-          add :title, :string
-          add :description, :string
-        end
-
-
-        create table(:translations) do
-          add :translatable_id, :integer
-          add :translatable_type, :string
-          add :locale, :string
-          add :field, :string
-          add :content, :text
-
-          timestamps
-        end
-        create index :translations, [:translatable_id, :translatable_type]
-        create index :translations, [:translatable_id, :translatable_type, :locale]
-        create unique_index(:translations, [:translatable_id, :translatable_type, :locale, :field])
-      end
-    end
+    mix ecto_translate.gen.migration
     ```
 
 1. Migrate

@@ -46,7 +46,6 @@ defmodule EctoTranslate do
   """
   use Ecto.Schema
 
-  import Ecto
   import Ecto.Changeset
   import Ecto.Query
 
@@ -145,13 +144,32 @@ defmodule EctoTranslate do
     {translatable_fields_ast, {translated_field_ast, translate_ast}}
   end
 
+  @translatable_id_type Application.get_env(:ecto_translate, :translatable_id_type, :integer)
+
+  @doc """
+  Returns translatable id type configured for application
+
+  The id type can be configured by setting `:translatable_id_type` config for
+  `:ecto_translate` otp application.
+
+  ## Example
+  ```elixir
+    config ecto_translate,
+      translatable_id_type: :string
+  ```
+
+  By default the is type is presumed as `:integer`
+  """
+  @spec translatable_id_type :: atom()
+  def translatable_id_type, do: @translatable_id_type
+
   schema "translations" do
-    field :translatable_id, :integer
+    field :translatable_id, @translatable_id_type
     field :translatable_type, :string
     field :locale, :string
     field :field, :string
     field :content, :string
-    timestamps
+    timestamps()
   end
 
   @repo Application.get_env(:ecto_translate, :repo)
