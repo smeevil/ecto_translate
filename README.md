@@ -128,6 +128,7 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
     ```elixir
     defmodule MyApp.Post do
       ...
+      import Ecto.Query
       use EctoTranslate, [:title, :body]
       ...
       schema "posts" do
@@ -137,6 +138,7 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
       ...
     end
     ```
+    **Important:** Don't forget to import `Ecto.Query` before `use EctoTranslate`
 
 1. Set translations for your data
 
