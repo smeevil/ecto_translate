@@ -90,4 +90,8 @@ defmodule EctoTranslateTest do
      record = Enum.at(records, 2)
      assert "Nog een ingave" == record.title
   end
+
+  test "Migration generator should not throw exceptions" do
+    :ok = Mix.Tasks.EctoTranslate.Gen.Migration.run([del_migs: true])
+  end
 end

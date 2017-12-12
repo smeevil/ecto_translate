@@ -48,6 +48,10 @@ defmodule Mix.Tasks.EctoTranslate.Gen.Migration do
                  change: change()]
       create_file file, migration_template(assigns)
 
+      if args[:del_migs] == true do
+        File.rm!(file)
+      end
+
       if open?(file) and Mix.shell.yes?("Do you want to run this migration?") do
         Mix.Task.run "ecto.migrate", [repo]
       end
