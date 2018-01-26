@@ -90,4 +90,11 @@ defmodule EctoTranslateTest do
      record = Enum.at(records, 2)
      assert "Nog een ingave" == record.title
   end
+
+  test "it should not throw an error when no translations are found" do
+    EctoTranslate |> EctoTranslate.Repo.delete_all
+    record = EctoTranslate.ExampleModel |> limit(1) |> EctoTranslate.Repo.one
+
+    record |> EctoTranslate.ExampleModel.translate!(:de)
+  end
 end
