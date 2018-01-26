@@ -91,6 +91,10 @@ defmodule EctoTranslateTest do
      assert "Nog een ingave" == record.title
   end
 
+  test "Migration generator should not throw exceptions" do
+    :ok = Mix.Tasks.EctoTranslate.Gen.Migration.run([del_migs: true])
+  end
+
   test "it should not throw an error when no translations are found" do
     EctoTranslate |> EctoTranslate.Repo.delete_all
     record = EctoTranslate.ExampleModel |> limit(1) |> EctoTranslate.Repo.one
