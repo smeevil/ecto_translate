@@ -1,3 +1,6 @@
+## 0.2.5 (2018-01-26)
+  - Thanks @alisinabh for adding a test for the previous patch
+
 ## 0.2.4 (2017-11-20)
   - Thanks @alisinabh for adding id custom type and migration generator, and updating the readme
 
