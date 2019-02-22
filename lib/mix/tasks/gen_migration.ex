@@ -28,34 +28,36 @@ defmodule Mix.Tasks.EctoTranslate.Gen.Migration do
 
   import Macro, only: [camelize: 1, underscore: 1]
   import Mix.Generator
-  import Mix.Ecto
 
   @migration_name "ecto_translate_table"
 
   @shortdoc "Generates a new migration for the EctoTranslate translation table"
 
   def run(args) do
-    no_umbrella!("ecto_translate.gen.migration")
-    repos = parse_repo(args)
+    Mix.Ecto.no_umbrella!("ecto_translate.gen.migration")
+    repos = Mix.Ecto.parse_repo(args)
 
-    Enum.each repos, fn repo ->
-      ensure_repo(repo, args)
-      path = migrations_path(repo)
+    Enum.each(repos, fn repo ->
+      Mix.Ecto.ensure_repo(repo, args)
+      path = Ecto.Migrator.migrations_path(repo)
       file = Path.join(path, "#{timestamp()}_#{underscore(@migration_name)}.exs")
-      create_directory path
+      create_directory(path)
 
-      assigns = [mod: Module.concat([repo, Migrations, camelize(@migration_name)]),
-                 change: change()]
-      create_file file, migration_template(assigns)
+      assigns = [
+        mod: Module.concat([repo, Migrations, camelize(@migration_name)]),
+        change: change()
+      ]
+
+      create_file(file, migration_template(assigns))
 
       if args[:del_migs] == true do
         File.rm!(file)
       end
 
-      if open?(file) and Mix.shell.yes?("Do you want to run this migration?") do
-        Mix.Task.run "ecto.migrate", [repo]
+      if Mix.Ecto.open?(file) and Mix.shell().yes?("Do you want to run this migration?") do
+        Mix.Task.run("ecto.migrate", [repo])
       end
-    end
+    end)
   end
 
   defp timestamp do
@@ -63,7 +65,7 @@ defmodule Mix.Tasks.EctoTranslate.Gen.Migration do
     "#{y}#{pad(m)}#{pad(d)}#{pad(hh)}#{pad(mm)}#{pad(ss)}"
   end
 
-  defp pad(i) when i < 10, do: << ?0, ?0 + i >>
+  defp pad(i) when i < 10, do: <<?0, ?0 + i>>
   defp pad(i), do: to_string(i)
 
   defp change do
@@ -89,12 +91,12 @@ defmodule Mix.Tasks.EctoTranslate.Gen.Migration do
     """
   end
 
-  embed_template :migration, """
+  embed_template(:migration, """
   defmodule <%= inspect @mod %> do
     use Ecto.Migration
     def change do
   <%= @change %>
     end
   end
-  """
+  """)
 end
