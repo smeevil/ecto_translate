@@ -25,7 +25,7 @@ defmodule EctoTranslate.Mixfile do
     [applications: applications(Mix.env)]
   end
 
-  defp applications(:test), do: [:logger, :postgrex]
+  defp applications(:test), do: [:logger, :ecto_sql, :postgrex]
   defp applications(_), do: [:logger]
   defp deps do
     [
