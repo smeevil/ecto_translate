@@ -1,3 +1,9 @@
+## 1.0.0 (2019-02-22)
+  - Thanks @Miradorn for updating the package to support Ecto 3.0 !
+  - BREAKING CHANGE : the package now requires Ecto 3.x
+  - bumped deps
+  - added dialixer
+  
 ## 0.2.5 (2018-01-26)
   - Thanks @alisinabh for adding a test for the previous patch
 
