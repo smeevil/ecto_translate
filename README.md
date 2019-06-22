@@ -11,6 +11,7 @@ Given an ecto module like :
 ```elixir
 defmodule MyApp.Post do
   ...
+  import Ecto.Query
   use EctoTranslate, [:title, :body]
   ...
   schema "posts" do
@@ -68,7 +69,7 @@ Docs can be found [here](https://smeevil.github.io/ecto_translate/EctoTranslate.
 
     ```elixir
     def deps do
-      [{:ecto_translate, "~> 0.2.3"}]
+      [{:ecto_translate, "~> 1.0"}]
     end
     ```
 
