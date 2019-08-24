@@ -70,11 +70,6 @@ defmodule Mix.Tasks.EctoTranslate.Gen.Migration do
 
   defp change do
     """
-        create table(:test_model) do
-          add :title, :string
-          add :description, :string
-        end
-
         create table(:translations) do
           add :translatable_id, #{inspect(EctoTranslate.translatable_id_type())}
           add :translatable_type, :string
